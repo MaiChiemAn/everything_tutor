@@ -56,6 +56,28 @@ npm run dev
 
 The app runs at <http://localhost:5173>. Set `VITE_API_URL` if the backend is not at `http://localhost:8000/api`. Add the frontend origin to backend `CORS_ORIGINS`.
 
+## Deploying to Vercel with Turso
+
+The backend can use Turso (libSQL) as its persistent database. Set these values in the Vercel project's **Settings → Environment Variables**:
+
+- `TURSO_DATABASE_URL` — the database URL from Turso, such as `libsql://your-database.turso.io`
+- `TURSO_AUTH_TOKEN` — the database auth token; keep it private
+- `SECRET_KEY` — a long, random secret
+- `CORS_ORIGINS` — the exact frontend origin, for example `https://your-project.vercel.app`
+- `VITE_API_URL` — `https://your-project.vercel.app/api` when the frontend and API share a domain
+
+When both Turso variables are set, the backend connects through the SQLAlchemy libSQL driver. Otherwise it uses `DATABASE_URL`, which is useful for local SQLite or PostgreSQL development. Do not rely on local SQLite for production: Vercel's serverless filesystem is not a persistent database.
+
+For local migration, add `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` to `backend/.env`, then run from `backend/`:
+
+```bash
+cd backend
+pip install -r requirements.txt
+alembic upgrade head
+```
+
+Run the migration once against the same Turso database configured in Vercel before registering users. `VITE_API_URL` is read at frontend build time, so redeploy after changing it. If the backend and frontend use different Vercel projects/domains, set `VITE_API_URL` to the backend's public URL ending in `/api`, and set `CORS_ORIGINS` to the frontend's full origin (scheme and hostname, no path).
+
 ## Tests
 
 From `backend/`, after installing requirements:

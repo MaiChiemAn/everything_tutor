@@ -7,11 +7,10 @@ down_revision = None
 branch_labels = None
 depends_on = None
 
-role_enum = sa.Enum("teacher", "student", name="role")
+role_enum = sa.Enum("teacher", "student", name="role", native_enum=False)
+
 
 def upgrade():
-    bind = op.get_bind()
-    if bind.dialect.name == "postgresql": role_enum.create(bind, checkfirst=True)
     op.create_table("users",
         sa.Column("id", sa.Integer(), primary_key=True), sa.Column("email", sa.String(255), nullable=False),
         sa.Column("full_name", sa.String(120), nullable=False), sa.Column("password_hash", sa.String(255), nullable=False),
@@ -43,4 +42,3 @@ def downgrade():
     op.drop_table("questions")
     op.drop_index("ix_users_email", table_name="users")
     op.drop_table("users")
-    if op.get_bind().dialect.name == "postgresql": role_enum.drop(op.get_bind(), checkfirst=True)

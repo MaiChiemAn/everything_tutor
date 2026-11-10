@@ -21,7 +21,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     full_name: Mapped[str] = mapped_column(String(120))
     password_hash: Mapped[str] = mapped_column(String(255))
-    role: Mapped[Role] = mapped_column(Enum(Role), default=Role.student)
+    role: Mapped[Role] = mapped_column(Enum(Role, name="role", native_enum=False), default=Role.student)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     attempts: Mapped[list["QuizAttempt"]] = relationship(back_populates="student", cascade="all, delete-orphan")
     collections: Mapped[list["QuizCollection"]] = relationship(back_populates="creator", cascade="all, delete-orphan")
